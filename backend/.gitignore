@@ -1,0 +1,26 @@
+# Node modules
+node_modules/
+
+# Entorno
+.env
+
+# Logs
+*.log
+
+# Cachés y compilaciones
+dist/
+build/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Archivos de despliegue o temporales
+*.zip
+*.tar.gz
+*.bak
+*.tmp

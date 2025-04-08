@@ -1,16 +1,16 @@
 {
-  "name": "car-rental-backend",  // Cambia el nombre de tu aplicación si lo deseas
+  "name": "car-rental-backend",
   "version": "1.0.0",
-  "main": "server.js",  // Cambia si tu archivo principal tiene otro nombre
+  "main": "server.js",
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "stripe": "^18.0.0"
   },
   "scripts": {
-    "start": "node server.js"  // Asegúrate de que 'server.js' sea tu archivo principal
+    "start": "node server.js"
   },
   "engines": {
-    "node": "16.x"  // O la versión de Node.js que prefieras
+    "node": "16.x"
   }
 }

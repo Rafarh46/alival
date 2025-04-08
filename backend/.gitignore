@@ -1,8 +1,7 @@
 # Node modules
 node_modules/
 
-# Entorno
-.env
+
 
 # Logs
 *.log

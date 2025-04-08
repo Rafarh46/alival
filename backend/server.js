@@ -1,57 +1,54 @@
-// Importar módulos necesarios prueba
-const express = require('express');
-const path = require('path');
-const Stripe = require('stripe');
-require('dotenv').config(); // Para cargar variables de entorno desde .env
+import express from 'express';
+import Stripe from 'stripe';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Inicializar la aplicación Express
+dotenv.config();
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Inicializar Stripe con tu clave secreta
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // Asegúrate de tener esta variable en tu .env
+// Soporte para __dirname con ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Middleware para parsear JSON en las solicitudes
+// Middlewares
+app.use(express.static(path.join(__dirname, 'website')));
 app.use(express.json());
 
-// Middleware para servir archivos estáticos desde la carpeta 'website'
-app.use(express.static(path.join(__dirname, '..', 'website')));
-
-// Ruta para la página principal
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'website', 'index.html'));
-});
-
-// Ruta para crear una sesión de pago con Stripe
+// Crear sesión de pago
 app.post('/create-checkout-session', async (req, res) => {
-    try {
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            line_items: [
-                {
-                    price_data: {
-                        currency: 'usd',
-                        product_data: {
-                            name: 'Alquiler de Vehículo',
-                        },
-                        unit_amount: 2000, // Precio en centavos (ej. 20 USD)
-                    },
-                    quantity: 1,
-                },
-            ],
-            mode: 'payment',
-            success_url: `${process.env.BASE_URL}/success.html`,
-            cancel_url: `${process.env.BASE_URL}/cancel.html`,
-        });
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            unit_amount: 5000, // $50.00 en centavos
+            product_data: {
+              name: 'Reserva de vehículo',
+              description: 'Pago de reserva online',
+            },
+          },
+          quantity: 1,
+        }
+      ],
+      success_url: `${req.headers.origin}/success.html`,
+      cancel_url: `${req.headers.origin}/cancel.html`,
+    });
 
-        res.json({ sessionId: session.id });
-    } catch (error) {
-        console.error('Error al crear la sesión de pago:', error);
-        res.status(500).send('Error al crear la sesión de pago');
-    }
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Error creando sesión:', error.message);
+    res.status(500).json({ error: 'Algo salió mal.' });
+  }
 });
 
-// Configurar el puerto del servidor
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

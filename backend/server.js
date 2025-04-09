@@ -1,51 +1,38 @@
-import express from 'express';
-import Stripe from 'stripe';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-dotenv.config();
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const express = require('express');
+const path = require('path');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Soporte para __dirname con ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Middlewares
 app.use(express.static(path.join(__dirname, 'website')));
-app.use(express.json());
+app.use(bodyParser.json());
 
-// Crear sesión de pago
+// Ruta para checkout de Stripe
 app.post('/create-checkout-session', async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      mode: 'payment',
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            unit_amount: 5000, // $50.00 en centavos
-            product_data: {
-              name: 'Reserva de vehículo',
-              description: 'Pago de reserva online',
-            },
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: 'Reserva de vehículo',
           },
-          quantity: 1,
-        }
-      ],
+          unit_amount: 2000, // 20 USD
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
       success_url: `${req.headers.origin}/success.html`,
       cancel_url: `${req.headers.origin}/cancel.html`,
     });
 
-    res.json({ url: session.url });
+    res.json({ id: session.id });
   } catch (error) {
-    console.error('Error creando sesión:', error.message);
-    res.status(500).json({ error: 'Algo salió mal.' });
+    console.error(error);
+    res.status(500).json({ error: 'Algo salió mal' });
   }
 });
 

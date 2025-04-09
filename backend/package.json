@@ -1,16 +1,14 @@
 {
-  "name": "car-rental-backend",
+  "name": "checkout-stripe",
   "version": "1.0.0",
   "main": "server.js",
-  "dependencies": {
-    "dotenv": "^16.4.7",
-    "express": "^5.1.0",
-    "stripe": "^18.0.0"
-  },
+  "type": "commonjs",
   "scripts": {
-    "start": "node server.js"
+    "start": "node backend/server.js"
   },
-  "engines": {
-    "node": "16.x"
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "stripe": "^12.0.0"
   }
 }

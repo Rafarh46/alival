@@ -1007,69 +1007,6 @@
 </div>
 <!-- Fin del Modal de Checkout -->
 
-<script src="https://js.stripe.com/v3/"></script>
-<script>
-    // Verifica si estamos dentro de un iframe
-    if (window.self !== window.top) {
-        console.log("Estamos dentro de un iframe. Algunos comportamientos pueden estar restringidos.");
-        // Evitar el uso de almacenamiento local o redirigir al usuario si es necesario
-    }
-
-    // Inicia Stripe con tu clave pública
-    var stripe = Stripe('pk_test_51RBU161IXopeWyL3ITYSYII4LSjtyOy8r34Ut9SRfJSCDH5TkWZVTnzsSIlNNPxdBifWZ43mJ7J0qBNy8CN6QnCm00ZbVGYgI3'); // Sustituye con tu clave pública
-
-    // Obtén el botón de pago
-    var checkoutButton = document.getElementById('checkout-button');
-
-    // Evento de click en el botón de pago
-    checkoutButton.addEventListener('click', function (event) {
-        event.preventDefault();
-
-        // Validación de campos requeridos
-        let firstName = document.getElementById('first-name').value;
-        let lastName = document.getElementById('last-name').value;
-        let email = document.getElementById('email-address').value;
-        let emailConfirm = document.getElementById('email-address-confirm').value;
-
-        if (!firstName || !lastName || !email || !emailConfirm) {
-            alert("Por favor, completa todos los campos.");
-            return;
-        }
-
-        if (email !== emailConfirm) {
-            alert("Las direcciones de correo electrónico no coinciden.");
-            return;
-        }
-
-        // Muestra un mensaje de carga
-        document.getElementById('checkout-button').disabled = true;
-        document.getElementById('checkout-button').innerText = 'Procesando...';
-
-        // Realiza la solicitud al backend para crear la sesión de pago
-        fetch('/create-checkout-session', {
-            method: 'POST',
-        })
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (sessionId) {
-            return stripe.redirectToCheckout({ sessionId: sessionId });
-        })
-        .then(function (result) {
-            if (result.error) {
-                alert(result.error.message);
-                document.getElementById('checkout-button').disabled = false;
-                document.getElementById('checkout-button').innerText = 'Pagar ahora';
-            }
-        })
-        .catch(function (error) {
-            console.error('Error:', error);
-            document.getElementById('checkout-button').disabled = false;
-            document.getElementById('checkout-button').innerText = 'Pagar ahora';
-        });
-    });
-</script>
-
 <script>
     document.getElementById('checkout-button').addEventListener('click', async function () {
       const form = document.getElementById('checkout-form');

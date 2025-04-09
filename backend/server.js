@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static(path.join(__dirname, 'website')));
+app.use(express.static(path.join(__dirname, '../website')));
 app.use(bodyParser.json());
 
 // Ruta para checkout de Stripe

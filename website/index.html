@@ -319,10 +319,10 @@
                             <div class="clearfix"></div>
                         </div>
                         <!-- Drop-off date/time end -->
-      
-                          
-            
-                        <input type="submit" class="submit" name="submit" value="continuar reservación" id="checkoutModalLabel">
+                                    
+                        <!-- Cambiar a un botón -->
+
+                        <button type="button" class="submit" id="continue-reservation-btn">Continuar Reservación</button>
 
                     </form>
 
@@ -1073,15 +1073,40 @@
 <!--<![endif]-->
 
 <script src="js/custom.js"></script>
-<!-- Esto puedes ponerlo al final del archivo HTML, o dentro del script donde controlas el botón de "Reservar" -->
 <script>
-    // Cada vez que abras el modal, asegura que el campo oculto tenga el nombre del auto
-    $('#checkoutModal').on('show.bs.modal', function () {
-      const carName = document.getElementById('selected-car-ph').textContent.trim();
-      document.getElementById('selected-car').value = carName;
+    document.getElementById("continue-reservation-btn").addEventListener("click", function() {
+        // Captura de los datos del formulario
+        var carSelect = document.getElementById("car-select");
+        var car = carSelect.options[carSelect.selectedIndex].text; // Obtenemos el nombre del vehículo, no la URL de la imagen
+        var pickUpLocation = document.getElementById("pick-up-location").value;
+        var pickUpDate = document.getElementById("pick-up-date").value;
+        var pickUpTime = document.getElementById("pick-up-time").value;
+        var dropOffDate = document.getElementById("drop-off-date").value;
+        var dropOffTime = document.getElementById("drop-off-time").value;
+  
+        // Validación: Verificar si todos los campos están llenos
+        if (!car || !pickUpLocation || !pickUpDate || !pickUpTime || !dropOffDate || !dropOffTime) {
+            // Si falta algún campo, mostrar un mensaje de advertencia
+            alert("Por favor, completa todos los campos antes de continuar.");
+            return; // No proceder con la apertura del modal
+        }
+  
+        // Asignar los valores al modal
+        document.getElementById("pick-up-date-ph").textContent = pickUpDate;
+        document.getElementById("pick-up-time-ph").textContent = pickUpTime;
+        document.getElementById("drop-off-date-ph").textContent = dropOffDate;
+        document.getElementById("drop-off-time-ph").textContent = dropOffTime;
+        document.getElementById("pickup-location-ph").textContent = pickUpLocation;
+        document.getElementById("selected-car-ph").textContent = car;  // Mostrar el nombre del vehículo
+        document.getElementById("selected-vehicle-image").src = carSelect.value; // Usamos la URL de la imagen como src
+  
+        // Mostrar el modal
+        $('#checkoutModal').modal('show');
     });
   </script>
   
+
+
 
 
 </body>

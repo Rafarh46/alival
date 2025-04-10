@@ -150,7 +150,7 @@
             </div>
             <div class="col-md-5 col-xs-12 pull-left">
                 <div class="reservation-form-shadow">
-
+        
                     <form action="#" method="post" name="car-select-form" id="car-select-form">
 
                         <div class="alert alert-danger hidden" id="car-select-form-msg">
@@ -319,10 +319,10 @@
                             <div class="clearfix"></div>
                         </div>
                         <!-- Drop-off date/time end -->
+      
+                          
+                          <input type="submit" class="submit" name="submit" value="continuar reservación" id="checkoutModalLabel">
 
-                        <button type="button" class="submit" data-toggle="modal" data-target="#checkoutModal">
-                            Reservar Ahora
-                          </button>                    
                     </form>
 
                 </div>
@@ -1008,6 +1008,8 @@
     </div>
 </div>
 <!-- Fin del Modal de Checkout -->
+
+
 <script>
     // Copia el nombre del auto seleccionado al input oculto antes de abrir el modal
     $('#checkoutModal').on('show.bs.modal', function () {

@@ -5,23 +5,34 @@ const path = require('path');
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const stripe = require('stripe')('sk_test_51RBU161IXopeWyL3LSV53FQOqkPiGLGKq9MWcDzs8P2BLTyjHz2phE3qvxdes2mMn0fZZmSn0xQRp7IBEIVhzw8g002mk3KhUV'); // reemplaza con tu clave real
+const stripe = require('stripe')('sk_test_51RBU161IXopeWyL3LSV53FQOqkPiGLGKq9MWcDzs8P2BLTyjHz2phE3qvxdes2mMn0fZZmSn0xQRp7IBEIVhzw8g002mk3KhUV'); // Reemplaza con tu clave real
 const fs = require('fs');
 
-app.use(cors());
-app.use(express.json());
-
+// Cargar autos desde JSON
 const cars = JSON.parse(fs.readFileSync('./data/cars.json'));
 
-app.use(express.static(path.join(__dirname, '../website')));
+// Middlewares
+app.use(cors());
+app.use(express.json());
 app.use(bodyParser.json());
 
-// Crear sesión de checkout
+// Archivos estáticos (frontend)
+app.use(express.static(path.join(__dirname, '../website')));
+
+// Dominio de frontend (Render)
+const FRONTEND_URL = 'https://alival-backend.onrender.com';
+
+// Endpoint de Stripe Checkout
 app.post('/api/create-checkout-session', async (req, res) => {
   const selectedCar = req.body['selected-car'];
+  console.log('Auto seleccionado:', selectedCar);
+
   const car = cars.find(c => c.name === selectedCar);
 
-  if (!car) return res.status(404).json({ error: 'Car not found' });
+  if (!car) {
+    console.error('Auto no encontrado');
+    return res.status(404).json({ error: 'Auto no encontrado' });
+  }
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -33,18 +44,25 @@ app.post('/api/create-checkout-session', async (req, res) => {
           product_data: {
             name: car.name,
           },
-          unit_amount: car.price * 100,
+          unit_amount: car.price * 100, // centavos
         },
         quantity: 1,
       }],
-      success_url: 'http://localhost:3000/success.html',
-      cancel_url: 'http://localhost:3000/cancel.html',
+      success_url: `${FRONTEND_URL}/success.html`,
+      cancel_url: `${FRONTEND_URL}/cancel.html`,
     });
 
+    console.log('Sesión creada con URL:', session.url);
     res.json({ url: session.url });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error al crear sesión de Stripe:', err.message);
+    res.status(500).json({ error: 'Error al procesar el pago' });
   }
 });
 
-app.listen(3000, () => console.log('Servidor corriendo en http://localhost:3000'));
+// Iniciar servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});

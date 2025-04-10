@@ -1008,12 +1008,20 @@
     </div>
 </div>
 <!-- Fin del Modal de Checkout -->
-
 <script>
+    // Copia el nombre del auto seleccionado al input oculto antes de abrir el modal
+    $('#checkoutModal').on('show.bs.modal', function () {
+      const carName = document.getElementById('selected-car-ph').textContent.trim();
+      document.getElementById('selected-car').value = carName;
+    });
+  
+    // Maneja el botón de "Pagar ahora"
     document.getElementById('checkout-button').addEventListener('click', async function () {
       const form = document.getElementById('checkout-form');
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
+  
+      console.log('Auto seleccionado:', data['selected-car']); // ✅ Verifica que tenga valor
   
       try {
         const response = await fetch('https://alival-backend.onrender.com/api/create-checkout-session', {
@@ -1062,7 +1070,15 @@
 <!--<![endif]-->
 
 <script src="js/custom.js"></script>
-
+<!-- Esto puedes ponerlo al final del archivo HTML, o dentro del script donde controlas el botón de "Reservar" -->
+<script>
+    // Cada vez que abras el modal, asegura que el campo oculto tenga el nombre del auto
+    $('#checkoutModal').on('show.bs.modal', function () {
+      const carName = document.getElementById('selected-car-ph').textContent.trim();
+      document.getElementById('selected-car').value = carName;
+    });
+  </script>
+  
 
 
 </body>

@@ -177,65 +177,6 @@ $('.scrollup, .navbar-brand').click(function(){
 // Location Map Function
 //-------------------------------------------------------------------------------
 
-function loadMap(addressData){
-
-  var path = document.URL;
-      path = path.substring(0, path.lastIndexOf("/") + 1)
-
-  var locationContent = "<h2>"+companyName+"</h2>"
-  + "<p>"+addressData.value+"</p>";
-
-  var locationData = {
-        map: {
-            options: {
-                maxZoom: 15,
-                scrollwheel: false,
-            }
-        },
-        infowindow:{
-                options:{
-                content: locationContent
-            }
-        },
-        marker:{
-            options: {
-                icon: new google.maps.MarkerImage(
-                    path+"img/mapmarker.png",
-                    new google.maps.Size(59, 58, "px", "px"),
-                    new google.maps.Point(0, 0),    //sets the origin point of the icon
-                    new google.maps.Point(29, 34)   //sets the anchor point for the icon
-                )
-            }
-        }
-    };
-
-    if ($.isEmptyObject(addressData.latLng)) {
-        locationData.infowindow.address = addressData.value;
-        locationData.marker.address = addressData.value;
-    }
-    else{
-        locationData.infowindow.latLng = addressData.latLng;
-        locationData.marker.latLng = addressData.latLng;
-    }
-
-  $('#locations .map').gmap3(locationData, "autofit" );
-}
-
-loadMap(locations[0]);
-
-
-$("#location-map-select").append('<option value="'+locations[0].value+'">Please select a location</option>');  
-$.each(locations, function( index, value ) {
-  //console.log(index);
-  var option = '<option value="'+index+'">'+value.value+'</option>';
-  $("#location-map-select").append(option);
-});
-
-$('#location-map-select').on('change', function() {
-  $('#locations .map').gmap3('destroy');
-  loadMap(locations[this.value]);
-});
-
 
 
 // Scroll To Animation

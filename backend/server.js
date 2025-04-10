@@ -1,11 +1,9 @@
-// server.js
-
 const bodyParser = require('body-parser');
 const path = require('path');
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const stripe = require('stripe')('sk_test_51RBU161IXopeWyL3LSV53FQOqkPiGLGKq9MWcDzs8P2BLTyjHz2phE3qvxdes2mMn0fZZmSn0xQRp7IBEIVhzw8g002mk3KhUV'); // Reemplaza con tu clave real
+const stripe = require('stripe')('sk_test_51RBU161IXopeWyL3LSV53FQOqkPiGLGKq9MWcDzs8P2BLTyjHz2phE3qvxdes2mMn0fZZmSn0xQRp7IBEIVhzw8g002mk3KhUV');
 const fs = require('fs');
 
 // Cargar autos desde JSON
@@ -25,7 +23,7 @@ const FRONTEND_URL = 'https://alival-backend.onrender.com';
 // Endpoint de Stripe Checkout
 app.post('/api/create-checkout-session', async (req, res) => {
   const selectedCar = req.body['selected-car'];
-  console.log('Auto seleccionado:', selectedCar);
+  console.log('Auto seleccionado desde frontend:', selectedCar);  // Log para verificar lo que llega al servidor
 
   const car = cars.find(c => c.name === selectedCar);
 
@@ -35,6 +33,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 
   try {
+    console.log('Creando sesión de Stripe para el auto:', car.name);
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',

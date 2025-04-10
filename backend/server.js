@@ -10,9 +10,9 @@ app.use(express.json());
 
 const cars = JSON.parse(fs.readFileSync('./data/cars.json'));
 
-app.get('/', (req, res) => {
-  res.send('Backend Alival funcionando 🟢');
-});
+app.use(express.static(path.join(__dirname, '../website')));
+app.use(bodyParser.json());
+
 // Crear sesión de checkout
 app.post('/api/create-checkout-session', async (req, res) => {
   const selectedCar = req.body['selected-car'];

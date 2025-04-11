@@ -70,7 +70,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
 // Conectar a MongoDB Atlas
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://federixrodrig:NV4WEBse13rvrmc4@carros.fdhkhhq.mongodb.net/?retryWrites=true&w=majority&appName=carros', {
+mongoose.connect('mongodb+srv://federixrodrig:NV4WEBsel3rvrmc4@carros.fdhkhhq.mongodb.net/?retryWrites=true&w=majority&appName=carros', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
@@ -102,7 +102,7 @@ app.post('/api/send-email', async (req, res) => {
             service: 'gmail',
             auth: {
                 user: 'romerorh46@gmail.com',
-                pass: 'tu_contraseña_real', // Cambia por tu contraseña real
+                pass: 'dczx ryql ufof kqnr', // Cambia por tu contraseña real
             },
         });
 

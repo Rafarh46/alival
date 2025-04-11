@@ -5,6 +5,8 @@ const app = express();
 const cors = require('cors');
 const stripe = require('stripe')('sk_test_51RBU161IXopeWyL3LSV53FQOqkPiGLGKq9MWcDzs8P2BLTyjHz2phE3qvxdes2mMn0fZZmSn0xQRp7IBEIVhzw8g002mk3KhUV');
 const fs = require('fs');
+const Reservation = require('./models/Reservation');
+
 
 // Cargar autos desde JSON
 const cars = JSON.parse(fs.readFileSync('./data/cars.json'));
@@ -73,6 +75,16 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
 
 
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb+srv://federixrodrig:NV4WEBse13rvrmc4@carros.fdhkhhq.mongodb.net/?retryWrites=true&w=majority&appName=carros', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('✅ Conectado a MongoDB Atlas'))
+.catch((err) => console.error('❌ Error al conectar:', err));
+
+
 
 
 const nodemailer = require('nodemailer');
@@ -118,9 +130,64 @@ app.post('/api/send-email', async (req, res) => {
     }
 });
 
+// Endpoint para guardar reserva y verificar disponibilidad
+app.post('/api/reservations', async (req, res) => {
+  try {
+    const data = req.body;
+
+    const newPickUp = new Date(data['pick-up']);
+    const newDropOff = new Date(data['drop-off']);
+    const carName = data['selected-car'];
+
+    const overlappingReservation = await Reservation.findOne({
+      carName: carName,
+      $or: [
+        {
+          pickUpDate: { $lte: newDropOff },
+          dropOffDate: { $gte: newPickUp }
+        }
+      ]
+    });
+
+    if (overlappingReservation) {
+      return res.status(409).json({ error: 'Este auto ya está reservado en ese rango de fechas' });
+    }
+
+    const reservation = new Reservation({
+      carName: carName,
+      pickUpDate: newPickUp,
+      dropOffDate: newDropOff,
+      userInfo: {
+        firstName: data['first-name'],
+        lastName: data['last-name'],
+        phone: data['phone-number'],
+        email: data['email-address'],
+        age: data['age'],
+        address: data['address'],
+        city: data['city'],
+        zip: data['zip-code'],
+      }
+    });
+
+    await reservation.save();
+    res.status(201).json({ message: 'Reserva guardada correctamente' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al guardar la reserva' });
+  }
+});
+
+
+
+
 // Iniciar servidor
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
+
+
+
+
 });
 

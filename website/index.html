@@ -1150,29 +1150,6 @@ document.getElementById('checkout-button').addEventListener('click', async funct
         document.getElementById("selected-car-ph").textContent = car;  // Mostrar el nombre del vehículo
         document.getElementById("selected-vehicle-image").src = carSelect.value; // Usamos la URL de la imagen como src
         
-                // Verificar disponibilidad antes de abrir el modal
-        try {
-            const disponibilidad = await fetch('https://alival-backend.onrender.com/api/check-availability', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    'selected-car': selectedCarName,
-                    'pick-up': `${pickUpDate} ${pickUpTime}`,
-                    'drop-off': `${dropOffDate} ${dropOffTime}`
-                })
-            });
-
-            const resultado = await disponibilidad.json();
-            if (!resultado.disponible) {
-                alert(resultado.mensaje || "El auto ya está reservado en esas fechas.");
-                return;
-            }
-        } catch (error) {
-            console.error("Error al verificar disponibilidad:", error);
-            alert("Error al verificar disponibilidad. Intenta más tarde.");
-            return;
-        }
-
                 
         
         // Mostrar el modal

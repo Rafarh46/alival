@@ -50,7 +50,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
           product_data: {
             name: car.name,
           },
-          unit_amount: car.totalPrice * 100, // Convertir a centavos
+          unit_amount: 1000 * 100, // Convertir a centavos
         },
         quantity: 1,
       }],

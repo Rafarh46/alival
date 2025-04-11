@@ -1039,6 +1039,65 @@
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
+      const carSelect = document.getElementById('car-select');
+        const carImagePath = carSelect.value;
+    
+        // Mapear imagen al nombre del auto (este valor debe coincidir con tu JSON del servidor)
+        const carNameMap = {
+            'img/vehicle1.png': 'Jeep Grand Cherokee',
+            'img/vehicle2.png': 'Chevrolet Cavalier',
+            'img/vehicle3.png': 'Ford Fusion',
+            'img/vehicle4.png': 'Ford Pick Up 2007',
+            'img/vehicle5.png': 'Ford Pick Up 2001',
+        };
+    
+        const selectedCarName = carNameMap[carImagePath];
+    
+        const pickUpDate = document.getElementById('pick-up-date').value;
+        const pickUpTime = document.getElementById('pick-up-time').value;
+        const dropOffDate = document.getElementById('drop-off-date').value;
+        const dropOffTime = document.getElementById('drop-off-time').value;
+    
+        if (!pickUpDate || !dropOffDate) {
+            alert("Por favor selecciona las fechas.");
+            return;
+        }
+    
+        const startDateTime = new Date(`${pickUpDate} ${pickUpTime}`);
+        const endDateTime = new Date(`${dropOffDate} ${dropOffTime}`);
+    
+        // Calcular la diferencia en milisegundos y convertir a días
+        const diffMs = endDateTime - startDateTime;
+        if (diffMs <= 0) {
+            alert("La fecha de entrega debe ser después de la de recogida.");
+            return;
+        }
+    
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));  // Redondear hacia arriba
+    
+        // Enviar al backend
+        const response = await fetch('/api/create-checkout-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'selected-car': selectedCarName,
+                'rental-days': diffDays
+            })
+        });
+    
+        const session = await response.json();
+        if (session.url) {
+            window.location.href = session.url;
+        } else {
+            console.error(session.error);
+        }
+
+
+
+
+
       const checkoutFormData = {
         'first-name': document.getElementById('first-name').value,
         'last-name': document.getElementById('last-name').value,
@@ -1094,76 +1153,42 @@
 
 <script src="js/custom.js"></script>
 <script>
-    document.getElementById("continue-reservation-btn").addEventListener("click", async function () {
-    const carSelect = document.getElementById("car-select");
-    const carImagePath = carSelect.value;
+    document.getElementById("continue-reservation-btn").addEventListener("click", function() {
 
-    const carNameMap = {
-        'img/vehicle1.png': 'Jeep Grand Cherokee',
-        'img/vehicle2.png': 'Chevrolet Cavalier',
-        'img/vehicle3.png': 'Ford Fusion',
-        'img/vehicle4.png': 'Ford Pick Up 2007',
-        'img/vehicle5.png': 'Ford Pick Up 2001',
-    };
-
-    const selectedCarName = carNameMap[carImagePath];
-
-    const pickUpDate = document.getElementById('pick-up-date').value;
-    const pickUpTime = document.getElementById('pick-up-time').value;
-    const dropOffDate = document.getElementById('drop-off-date').value;
-    const dropOffTime = document.getElementById('drop-off-time').value;
-    const pickUpLocation = document.getElementById("pick-up-location").value;
-
-    if (!pickUpDate || !dropOffDate || !pickUpTime || !dropOffTime || !pickUpLocation || !selectedCarName) {
-        alert("Por favor completa todos los campos antes de continuar.");
-        return;
-    }
-
-    const startDateTime = new Date(`${pickUpDate} ${pickUpTime}`);
-    const endDateTime = new Date(`${dropOffDate} ${dropOffTime}`);
-
-    const diffMs = endDateTime - startDateTime;
-    if (diffMs <= 0) {
-        alert("La fecha de entrega debe ser después de la de recogida.");
-        return;
-    }
-
-    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-    // Enviar fechas + auto al backend (pero sin redirigir a Stripe aún)
-    try {
-        const response = await fetch('https://alival-backend.onrender.com/api/save-reservation-info', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                'selected-car': selectedCarName,
-                'rental-days': diffDays,
-                'pick-up': `${pickUpDate} ${pickUpTime}`,
-                'drop-off': `${dropOffDate} ${dropOffTime}`,
-                'pickup-location': pickUpLocation
-            })
-        });
-        const result = await response.json();
-        console.log("Reserva temporal guardada:", result.message || result);
-    } catch (error) {
-        console.error("Error al guardar info previa:", error);
-    }
-
-    // Mostrar el modal con los datos
-    document.getElementById("pick-up-date-ph").textContent = pickUpDate;
-    document.getElementById("pick-up-time-ph").textContent = pickUpTime;
-    document.getElementById("drop-off-date-ph").textContent = dropOffDate;
-    document.getElementById("drop-off-time-ph").textContent = dropOffTime;
-    document.getElementById("pickup-location-ph").textContent = pickUpLocation;
-    document.getElementById("selected-car-ph").textContent = selectedCarName;
-    document.getElementById("selected-car").value = selectedCarName;
-    document.getElementById("selected-vehicle-image").src = carImagePath;
-
-    $('#checkoutModal').modal('show');
-});
-
-    </script>
+        
+        // Captura de los datos del formulario
+        var carSelect = document.getElementById("car-select");
+        var car = carSelect.options[carSelect.selectedIndex].text; // Obtenemos el nombre del vehículo, no la URL de la imagen
+        var pickUpLocation = document.getElementById("pick-up-location").value;
+        var pickUpDate = document.getElementById("pick-up-date").value;
+        var pickUpTime = document.getElementById("pick-up-time").value;
+        var dropOffDate = document.getElementById("drop-off-date").value;
+        var dropOffTime = document.getElementById("drop-off-time").value;
+  
+        // Validación: Verificar si todos los campos están llenos
+        if (!car || !pickUpLocation || !pickUpDate || !pickUpTime || !dropOffDate || !dropOffTime) {
+            // Si falta algún campo, mostrar un mensaje de advertencia
+            alert("Por favor, completa todos los campos antes de continuar.");
+            return; // No proceder con la apertura del modal
+        }
+  
+        // Asignar los valores al modal
+        document.getElementById("pick-up-date-ph").textContent = pickUpDate;
+        document.getElementById("pick-up-time-ph").textContent = pickUpTime;
+        document.getElementById("drop-off-date-ph").textContent = dropOffDate;
+        document.getElementById("drop-off-time-ph").textContent = dropOffTime;
+        document.getElementById("pickup-location-ph").textContent = pickUpLocation;
+        document.getElementById("selected-car-ph").textContent = car;  // Mostrar el nombre del vehículo
+        document.getElementById("selected-vehicle-image").src = carSelect.value; // Usamos la URL de la imagen como src
+        
+        
+        
+        // Mostrar el modal
+        $('#checkoutModal').modal('show');
+    });
     
+  </script>
+
 
 
     

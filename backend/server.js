@@ -135,7 +135,7 @@ app.post('/api/send-email', async (req, res) => {
             service: 'gmail',
             auth: {
                 user: 'alivalrentacar@gmail.com',
-                pass: 'alivalrentacar00', // Cambia por tu contraseña real
+                pass: 'ucny gbgp eqvs pfav', // Cambia por tu contraseña real
             },
         });
 

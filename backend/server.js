@@ -121,15 +121,6 @@ app.post('/api/send-email', async (req, res) => {
         <p><strong>Entrega:</strong> ${form['drop-off']}</p>
     `;
 
-    const clientHtml = `
-    <h2>Gracias por tu reserva en Alival Renta Car</h2>
-    <p>Hola ${form['first-name']},</p>
-    <p>Hemos recibido tu solicitud de renta con los siguientes datos:</p>
-    ${html}
-    <p>Nos pondremos en contacto contigo pronto para confirmar los detalles.</p>
-    <p>¡Gracias por confiar en nosotros!</p>
-`;
-
     try {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -147,7 +138,21 @@ app.post('/api/send-email', async (req, res) => {
             html: html,
         });
 
-
+        const clientHtml = `
+        <h2>Gracias por tu reserva en Alival Renta Car</h2>
+        <p>Hola ${form['first-name']},</p>
+        <p>Hemos recibido tu solicitud de renta con los siguientes datos:</p>
+        ${html}
+        <p>Nos pondremos en contacto contigo pronto para confirmar los detalles.</p>
+        <p>¡Gracias por confiar en nosotros!</p>
+    `;
+         // Correo para el cliente
+         await transporter.sendMail({
+          from: 'Alival Renta Car <alivalrentacar@gmail.com>',
+          to: form['email-address'],
+          subject: 'Confirmación de tu reserva',
+          html: clientHtml,
+      });
 
         res.status(200).send({ message: 'Correo enviado correctamente' });
     } catch (err) {

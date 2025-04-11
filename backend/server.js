@@ -134,21 +134,22 @@ app.post('/api/send-email', async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'romerorh46@gmail.com',
-                pass: 'dczx ryql ufof kqnr', // Cambia por tu contraseña real
+                user: 'alivalrentacar@gmail.com',
+                pass: 'alivalrentacar00', // Cambia por tu contraseña real
             },
         });
 
         await transporter.sendMail({
-            from: 'Reservas <romerorh46@gmail.com>',
-            to: 'romerorh46@gmail.com',
+            from: 'Reservas <alivalrentacar@gmail.com>',
+            to: 'alivalrentacar@gmail.com',
+            cc:'romerorh46@gmail.com',
             subject: 'Nueva Solicitud de Reserva',
             html: html,
         });
 
          // Correo para el cliente
          await transporter.sendMail({
-          from: 'Alival Renta Car <romerorh46@gmail.com>',
+          from: 'Alival Renta Car <alivalrentacar@gmail.com>',
           to: form['email-address'],
           subject: 'Confirmación de tu reserva',
           html: clientHtml,

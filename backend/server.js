@@ -147,13 +147,7 @@ app.post('/api/send-email', async (req, res) => {
             html: html,
         });
 
-         // Correo para el cliente
-         await transporter.sendMail({
-          from: 'Alival Renta Car <alivalrentacar@gmail.com>',
-          to: form['email-address'],
-          subject: 'Confirmación de tu reserva',
-          html: clientHtml,
-      });
+
 
         res.status(200).send({ message: 'Correo enviado correctamente' });
     } catch (err) {

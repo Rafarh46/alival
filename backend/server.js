@@ -144,23 +144,31 @@ app.post('/api/reservations', async (req, res) => {
       return res.status(409).json({ error: 'Este auto ya está reservado en ese rango de fechas' });
     }
 
-    // Guardar la nueva reserva
     const reservation = new Reservation({
-      carName: carName,
-      pickUpDate: newPickUp,
-      dropOffDate: newDropOff,
-      userInfo: {
+      car: {
+        name: data['selected-car'],
+        image: data['car-image'], // opcional si tienes imagen
+        pricePerDay: data['car-price']
+      },
+      renter: {
         firstName: data['first-name'],
         lastName: data['last-name'],
-        phone: data['phone-number'],
         email: data['email-address'],
+        phone: data['phone-number'],
         age: data['age'],
         address: data['address'],
         city: data['city'],
-        zip: data['zip-code'],
+        zipCode: data['zip-code']
+      },
+      rentalInfo: {
+        pickupLocation: data['pickup-location'],
+        dropoffLocation: data['dropoff-location'],
+        pickupDateTime: new Date(data['pick-up']),
+        dropoffDateTime: new Date(data['drop-off']),
+        totalPrice: data['total-price']
       }
     });
-
+    
     await reservation.save();
     res.status(201).json({ message: 'Reserva guardada correctamente' });
 

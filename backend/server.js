@@ -5,7 +5,7 @@ const app = express();
 const cors = require('cors');
 const stripe = require('stripe')('sk_test_51RBU161IXopeWyL3LSV53FQOqkPiGLGKq9MWcDzs8P2BLTyjHz2phE3qvxdes2mMn0fZZmSn0xQRp7IBEIVhzw8g002mk3KhUV');
 const fs = require('fs');
-const Reservation = require('./models/Reservation');
+const Reservation = require('./Reservation');
 
 
 // Cargar autos desde JSON

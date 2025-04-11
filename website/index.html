@@ -1157,57 +1157,7 @@ document.getElementById('checkout-button').addEventListener('click', async funct
     });
     
   </script>
-
-<script>
-    document.getElementById('checkout-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = e.target;
     
-      const data = {
-        "first-name": form['first-name'].value,
-        "last-name": form['last-name'].value,
-        "email-address": form['email-address'].value,
-        "phone-number": form['phone-number'].value,
-        "age": form['age'].value,
-        "address": form['address'].value,
-        "city": form['city'].value,
-        "zip-code": form['zip-code'].value,
-        "pickup-location": form['pickup-location'].value,
-        "drop-off-location": form['drop-off-location'].value,
-        "pick-up": form['pick-up'].value,
-        "drop-off": form['drop-off'].value,
-        "selected-car": form['selected-car'].value,
-        "pricePerDay": parseInt(form['selected-car'].dataset.price) // asegúrate que lo tenga
-      };
-    
-      localStorage.setItem('reservationData', JSON.stringify(data));
-    
-      try {
-        const response = await fetch('/api/create-checkout-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            "selected-car": data["selected-car"],
-            "rental-days": Math.ceil((new Date(data["drop-off"]) - new Date(data["pick-up"])) / (1000 * 60 * 60 * 24))
-          })
-        });
-    
-        const result = await response.json();
-        if (result.url) {
-          window.location.href = result.url;
-        } else {
-          alert('Error creando sesión de pago');
-        }
-    
-      } catch (err) {
-        console.error(err);
-        alert('Error al conectar con Stripe');
-      }
-    });
-    </script>
-    
-
-
 
 </body>
 </html>

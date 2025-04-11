@@ -2,73 +2,87 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Pago Exitoso</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-        }
-        .check {
-            font-size: 60px;
-            color: green;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva Confirmada - Alival Renta Car</title>
+    <link rel="stylesheet" href="style.css"> <!-- Asegúrate de tener el archivo de estilos -->
 </head>
 <body>
-    <div class="check">✅</div>
-    <h1>¡Gracias por tu pago!</h1>
-    <p>Tu reserva ha sido completada correctamente.</p>
-    <a href="index.html">Volver a la página principal</a>
+    <div class="container">
+        <h1>¡Gracias por tu reserva!</h1>
+        <p>Tu pago ha sido procesado con éxito. A continuación, encontrarás los detalles de tu reserva:</p>
+
+        <div id="reservation-details">
+            <h3>Detalles de la Reserva</h3>
+            <p><strong>Nombre:</strong> <span id="customer-name"></span></p>
+            <p><strong>Carro Seleccionado:</strong> <span id="selected-car"></span></p>
+            <p><strong>Fecha de Recogida:</strong> <span id="pickup-date"></span></p>
+            <p><strong>Fecha de Entrega:</strong> <span id="dropoff-date"></span></p>
+            <p><strong>Precio Total:</strong> <span id="total-price"></span> MXN</p>
+        </div>
+
+        <p>Recibirás un correo con todos los detalles de tu reserva.</p>
+
+        <a href="/" class="button">Volver a la Página Principal</a>
+    </div>
 
     <script>
-        // Recupera los datos guardados antes del pago
-        const formData = JSON.parse(localStorage.getItem('checkoutFormData'));
-    
-        if (formData) {
-            fetch('https://alival-backend.onrender.com/api/send-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log('Correo enviado:', data);
-                localStorage.removeItem('checkoutFormData'); // Limpia después del envío
-            })
-            .catch(err => {
-                console.error('Error al enviar correo:', err);
-            });
-        }
-    </script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const formData = JSON.parse(localStorage.getItem('reservationData'));
-  
-      if (!formData) return;
-  
-      fetch('/api/reservations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.message) {
-          alert('✅ Reserva guardada con éxito');
-          localStorage.removeItem('reservationData'); // Limpia almacenamiento local
-        } else {
-          alert('❌ Error: ' + data.error);
-        }
-      })
-      .catch(err => {
-        console.error('Error al enviar reserva:', err);
-        alert('Error al guardar la reserva');
-      });
-    });
-  </script>
-      
+        // Obtener los parámetros de la URL (pasados por Stripe al redirigir después del pago)
+        const urlParams = new URLSearchParams(window.location.search);
+        const customerName = urlParams.get('customer-name');
+        const selectedCar = urlParams.get('selected-car');
+        const pickupDate = urlParams.get('pickup-date');
+        const dropoffDate = urlParams.get('dropoff-date');
+        const totalPrice = urlParams.get('total-price');
 
- 
+        // Rellenar los detalles de la reserva
+        document.getElementById('customer-name').textContent = customerName;
+        document.getElementById('selected-car').textContent = selectedCar;
+        document.getElementById('pickup-date').textContent = pickupDate;
+        document.getElementById('dropoff-date').textContent = dropoffDate;
+        document.getElementById('total-price').textContent = totalPrice;
+
+        // Enviar la información de la reserva al backend para ser almacenada
+        async function sendReservationToBackend() {
+            const reservationData = {
+                carName: selectedCar,
+                rentalDays: (new Date(dropoffDate) - new Date(pickupDate)) / (1000 * 3600 * 24), // Calcular el número de días
+                renter: {
+                    firstName: customerName.split(' ')[0], // Suponiendo que el nombre está en "Nombre Apellido"
+                    lastName: customerName.split(' ')[1],
+                    pickupDate: pickupDate,
+                    dropoffDate: dropoffDate,
+                    totalPrice: totalPrice,
+                    email: 'email@cliente.com', // Aquí deberías reemplazarlo con el correo del cliente
+                    phone: '1234567890', // Reemplaza con el número de teléfono del cliente
+                    address: 'Dirección del cliente', // Reemplaza con la dirección del cliente
+                    city: 'Ciudad del cliente', // Reemplaza con la ciudad
+                    zipCode: 'Código postal', // Reemplaza con el código postal
+                    pickupLocation: 'Ubicación de recogida', // Ubicación de recogida
+                }
+            };
+
+            try {
+                const response = await fetch('/api/reservations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(reservationData),
+                });
+
+                if (response.ok) {
+                    console.log('Reserva registrada con éxito');
+                } else {
+                    console.error('Error al registrar la reserva');
+                }
+            } catch (err) {
+                console.error('Error al enviar la reserva:', err);
+            }
+        }
+
+        // Enviar la reserva al backend
+        sendReservationToBackend();
+    </script>
 </body>
 </html>
+

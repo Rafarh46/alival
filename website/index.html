@@ -1026,115 +1026,91 @@
       document.getElementById('selected-car').value = carName;
     });
   
-    // Maneja el botón de "Pagar ahora"
-    document.getElementById('checkout-button').addEventListener('click', async function () {
-      const form = document.getElementById('checkout-form');
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
+ // Maneja el botón de "Pagar ahora"
+document.getElementById('checkout-button').addEventListener('click', async function () {
+  const form = document.getElementById('checkout-form');
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
 
-      const carSelect = document.getElementById('car-select');
-        const carImagePath = carSelect.value;
-    
-        // Mapear imagen al nombre del auto (este valor debe coincidir con tu JSON del servidor)
-        const carNameMap = {
-            'img/vehicle1.png': 'Jeep Grand Cherokee',
-            'img/vehicle2.png': 'Chevrolet Cavalier',
-            'img/vehicle3.png': 'Ford Fusion',
-            'img/vehicle4.png': 'Ford Pick Up 2007',
-            'img/vehicle5.png': 'Ford Pick Up 2001',
-        };
-    
-        const selectedCarName = carNameMap[carImagePath];
-    
-        const pickUpDate = document.getElementById('pick-up-date').value;
-        const pickUpTime = document.getElementById('pick-up-time').value;
-        const dropOffDate = document.getElementById('drop-off-date').value;
-        const dropOffTime = document.getElementById('drop-off-time').value;
-    
-        if (!pickUpDate || !dropOffDate) {
-            alert("Por favor selecciona las fechas.");
-            return;
-        }
-    
-        const startDateTime = new Date(`${pickUpDate} ${pickUpTime}`);
-        const endDateTime = new Date(`${dropOffDate} ${dropOffTime}`);
-    
-        // Calcular la diferencia en milisegundos y convertir a días
-        const diffMs = endDateTime - startDateTime;
-        if (diffMs <= 0) {
-            alert("La fecha de entrega debe ser después de la de recogida.");
-            return;
-        }
-    
-        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));  // Redondear hacia arriba
-    
-        // Enviar al backend
-        const response = await fetch('/api/create-checkout-session', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                'selected-car': selectedCarName,
-                'rental-days': diffDays
-            })
-        });
-    
-        const session = await response.json();
-        if (session.url) {
-            window.location.href = session.url;
-        } else {
-            console.error(session.error);
-        }
+  const carSelect = document.getElementById('car-select');
+  const carImagePath = carSelect.value;
 
+  // Mapear imagen al nombre del auto (este valor debe coincidir con tu JSON del servidor)
+  const carNameMap = {
+    'img/vehicle1.png': 'Jeep Grand Cherokee',
+    'img/vehicle2.png': 'Chevrolet Cavalier',
+    'img/vehicle3.png': 'Ford Fusion',
+    'img/vehicle4.png': 'Ford Pick Up 2007',
+    'img/vehicle5.png': 'Ford Pick Up 2001',
+  };
 
+  const selectedCarName = carNameMap[carImagePath];
 
+  const pickUpDate = document.getElementById('pick-up-date').value;
+  const pickUpTime = document.getElementById('pick-up-time').value;
+  const dropOffDate = document.getElementById('drop-off-date').value;
+  const dropOffTime = document.getElementById('drop-off-time').value;
 
+  if (!pickUpDate || !dropOffDate) {
+    alert("Por favor selecciona las fechas.");
+    return;
+  }
 
-      const checkoutFormData = {
-        'first-name': document.getElementById('first-name').value,
-        'last-name': document.getElementById('last-name').value,
-        'phone-number': document.getElementById('phone-number').value,
-        'age': document.getElementById('age').value,
-        'email-address': document.getElementById('email-address').value,
-        'address': document.getElementById('address').value,
-        'city': document.getElementById('city').value,
-        'zip-code': document.getElementById('zip-code').value,
-        'selected-car': document.getElementById('selected-car').value,
-        
-        // Recoger la fecha y la hora de recogida y entrega
-        'pick-up': document.getElementById('pick-up-date').innerText + ' a las ' + document.getElementById('pick-up-time').innerText,
-        'drop-off': document.getElementById('drop-off-date').innerText + ' a las ' + document.getElementById('drop-off-time').innerText,
+  const startDateTime = new Date(`${pickUpDate} ${pickUpTime}`);
+  const endDateTime = new Date(`${dropOffDate} ${dropOffTime}`);
 
-        // También las ubicaciones
-        'pickup-location': document.getElementById('pickup-location').innerText,
-        'dropoff-location': document.getElementById('dropoff-location').innerText
-    };
+  // Calcular la diferencia en milisegundos y convertir a días
+  const diffMs = endDateTime - startDateTime;
+  if (diffMs <= 0) {
+    alert("La fecha de entrega debe ser después de la de recogida.");
+    return;
+  }
 
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));  // Redondear hacia arriba
 
-      localStorage.setItem('checkoutFormData', JSON.stringify(data));
-  
-      console.log('Auto seleccionado:', data['selected-car']); // ✅ Verifica que tenga valor
-  
-      try {
-        const response = await fetch('https://alival-backend.onrender.com/api/create-checkout-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-  
-        const result = await response.json();
-  
-        if (result.url) {
-          window.location.href = result.url; // Redirige a Stripe Checkout
-        } else {
-          alert('Error al procesar el pago');
-        }
-      } catch (error) {
-        console.error(error);
-        alert('Hubo un problema al conectar con el servidor.');
-      }
+  // Recoger los datos adicionales del formulario para la reserva
+  const checkoutFormData = {
+    'first-name': document.getElementById('first-name').value,
+    'last-name': document.getElementById('last-name').value,
+    'phone-number': document.getElementById('phone-number').value,
+    'age': document.getElementById('age').value,
+    'email-address': document.getElementById('email-address').value,
+    'address': document.getElementById('address').value,
+    'city': document.getElementById('city').value,
+    'zip-code': document.getElementById('zip-code').value,
+    'selected-car': selectedCarName,
+    'pick-up': `${pickUpDate} a las ${pickUpTime}`,
+    'drop-off': `${dropOffDate} a las ${dropOffTime}`,
+    'pickup-location': document.getElementById('pickup-location').value,
+    'dropoff-location': document.getElementById('dropoff-location').value,
+    'rental-days': diffDays
+  };
+
+  // Almacenar los datos en el localStorage
+  localStorage.setItem('checkoutFormData', JSON.stringify(checkoutFormData));
+
+  console.log('Datos de la reserva:', checkoutFormData); // Verifica que se estén recolectando correctamente
+
+  // Enviar los datos al backend
+  try {
+    const response = await fetch('https://alival-backend.onrender.com/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(checkoutFormData),
     });
+
+    const result = await response.json();
+    if (result.url) {
+      window.location.href = result.url; // Redirige a Stripe Checkout
+    } else {
+      alert('Error al procesar el pago');
+    }
+  } catch (error) {
+    console.error(error);
+    alert('Hubo un problema al conectar con el servidor.');
+  }
+});
+
   </script>
   
 <script>
@@ -1146,7 +1122,7 @@
 
 <script src="js/custom.js"></script>
 <script>
-    document.getElementById("continue-reservation-btn").addEventListener("click", function() {
+    document.getElementById("continue-reservation-btn").addEventListener("click",async function() {
 
         
         // Captura de los datos del formulario
@@ -1174,7 +1150,30 @@
         document.getElementById("selected-car-ph").textContent = car;  // Mostrar el nombre del vehículo
         document.getElementById("selected-vehicle-image").src = carSelect.value; // Usamos la URL de la imagen como src
         
-        
+                // Verificar disponibilidad antes de abrir el modal
+        try {
+            const disponibilidad = await fetch('https://alival-backend.onrender.com/api/check-availability', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    'selected-car': selectedCarName,
+                    'pick-up': `${pickUpDate} ${pickUpTime}`,
+                    'drop-off': `${dropOffDate} ${dropOffTime}`
+                })
+            });
+
+            const resultado = await disponibilidad.json();
+            if (!resultado.disponible) {
+                alert(resultado.mensaje || "El auto ya está reservado en esas fechas.");
+                return;
+            }
+        } catch (error) {
+            console.error("Error al verificar disponibilidad:", error);
+            alert("Error al verificar disponibilidad. Intenta más tarde.");
+            return;
+        }
+
+                
         
         // Mostrar el modal
         $('#checkoutModal').modal('show');
@@ -1182,8 +1181,53 @@
     
   </script>
 
-
-
+<script>
+    document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+    
+      const data = {
+        "first-name": form['first-name'].value,
+        "last-name": form['last-name'].value,
+        "email-address": form['email-address'].value,
+        "phone-number": form['phone-number'].value,
+        "age": form['age'].value,
+        "address": form['address'].value,
+        "city": form['city'].value,
+        "zip-code": form['zip-code'].value,
+        "pickup-location": form['pickup-location'].value,
+        "drop-off-location": form['drop-off-location'].value,
+        "pick-up": form['pick-up'].value,
+        "drop-off": form['drop-off'].value,
+        "selected-car": form['selected-car'].value,
+        "pricePerDay": parseInt(form['selected-car'].dataset.price) // asegúrate que lo tenga
+      };
+    
+      localStorage.setItem('reservationData', JSON.stringify(data));
+    
+      try {
+        const response = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            "selected-car": data["selected-car"],
+            "rental-days": Math.ceil((new Date(data["drop-off"]) - new Date(data["pick-up"])) / (1000 * 60 * 60 * 24))
+          })
+        });
+    
+        const result = await response.json();
+        if (result.url) {
+          window.location.href = result.url;
+        } else {
+          alert('Error creando sesión de pago');
+        }
+    
+      } catch (err) {
+        console.error(err);
+        alert('Error al conectar con Stripe');
+      }
+    });
+    </script>
     
 
 

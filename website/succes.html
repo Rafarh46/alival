@@ -41,7 +41,33 @@
             });
         }
     </script>
-    
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const formData = JSON.parse(localStorage.getItem('reservationData'));
+  
+      if (!formData) return;
+  
+      fetch('/api/reservations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.message) {
+          alert('✅ Reserva guardada con éxito');
+          localStorage.removeItem('reservationData'); // Limpia almacenamiento local
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      })
+      .catch(err => {
+        console.error('Error al enviar reserva:', err);
+        alert('Error al guardar la reserva');
+      });
+    });
+  </script>
+      
 
  
 </body>

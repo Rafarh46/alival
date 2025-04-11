@@ -14,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
+
 // Archivos estáticos (frontend)
 app.use(express.static(path.join(__dirname, '../website')));
 
@@ -22,10 +23,14 @@ const FRONTEND_URL = 'https://alival-backend.onrender.com';
 
 // Endpoint de Stripe Checkout
 app.post('/api/create-checkout-session', async (req, res) => {
-  const selectedCar = req.body['selected-car'];
-  console.log('Auto seleccionado desde frontend:', selectedCar);  // Log para verificar lo que llega al servidor
+  const selectedCarName = req.body['selected-car'];  // Nombre del auto seleccionado desde el frontend
+  console.log('Auto seleccionado desde frontend:', selectedCarName);  // Log para verificar lo que llega al servidor
 
-  const car = cars.find(c => c.name === selectedCar);
+  // Buscar el auto en el JSON cargado
+  const car = cars.find(c => c.name === selectedCarName);
+  const rentalDays = req.body['rental-days'];
+  const totalPrice = car.pricePerDay * rentalDays;
+
 
   if (!car) {
     console.error('Auto no encontrado');
@@ -35,6 +40,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   try {
     console.log('Creando sesión de Stripe para el auto:', car.name);
 
+    // Crear la sesión de Stripe
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -44,7 +50,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
           product_data: {
             name: car.name,
           },
-          unit_amount: car.price * 100, // centavos
+          unit_amount: car.totalPrice * 100, // Convertir a centavos
         },
         quantity: 1,
       }],
@@ -60,6 +66,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.status(500).json({ error: 'Error al procesar el pago' });
   }
 });
+
+
+
+
+
 const nodemailer = require('nodemailer');
 
 // Endpoint para enviar el formulario por correo
@@ -102,8 +113,6 @@ app.post('/api/send-email', async (req, res) => {
         res.status(500).send({ error: 'Error al enviar el correo' });
     }
 });
-
-
 
 // Iniciar servidor
 const PORT = process.env.PORT || 10000;

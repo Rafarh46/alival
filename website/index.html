@@ -1051,12 +1051,12 @@
         'selected-car': document.getElementById('selected-car').value,
         
         // Recoger la fecha y la hora de recogida y entrega
-        'pick-up': document.getElementById('pick-up-date-ph').innerText + ' a las ' + document.getElementById('pick-up-time-ph').innerText,
-        'drop-off': document.getElementById('drop-off-date-ph').innerText + ' a las ' + document.getElementById('drop-off-time-ph').innerText,
+        'pick-up': document.getElementById('pick-up-date').innerText + ' a las ' + document.getElementById('pick-up-time').innerText,
+        'drop-off': document.getElementById('drop-off-date').innerText + ' a las ' + document.getElementById('drop-off-time').innerText,
 
         // También las ubicaciones
-        'pickup-location': document.getElementById('pickup-location-ph').innerText,
-        'dropoff-location': document.getElementById('dropoff-location-ph').innerText
+        'pickup-location': document.getElementById('pickup-location').innerText,
+        'dropoff-location': document.getElementById('dropoff-location').innerText
     };
 
 
@@ -1120,11 +1120,71 @@
         document.getElementById("selected-car-ph").textContent = car;  // Mostrar el nombre del vehículo
         document.getElementById("selected-vehicle-image").src = carSelect.value; // Usamos la URL de la imagen como src
   
+        
         // Mostrar el modal
         $('#checkoutModal').modal('show');
     });
   </script>
-  
+
+<script>
+    document.getElementById('continue-reservation-btn').addEventListener('click', async function () {
+        const carSelect = document.getElementById('car-select');
+        const carImagePath = carSelect.value;
+    
+        // Mapear imagen al nombre del auto (este valor debe coincidir con tu JSON del servidor)
+        const carNameMap = {
+            'img/vehicle1.png': 'Jeep Grand Cherokee',
+            'img/vehicle2.png': 'Chevrolet Cavalier',
+            'img/vehicle3.png': 'Ford Fusion',
+            'img/vehicle4.png': 'Ford Pick Up 2007',
+            'img/vehicle5.png': 'Ford Pick Up 2001',
+        };
+    
+        const selectedCarName = carNameMap[carImagePath];
+    
+        const pickUpDate = document.getElementById('pick-up-date').value;
+        const pickUpTime = document.getElementById('pick-up-time').value;
+        const dropOffDate = document.getElementById('drop-off-date').value;
+        const dropOffTime = document.getElementById('drop-off-time').value;
+    
+        if (!pickUpDate || !dropOffDate) {
+            alert("Por favor selecciona las fechas.");
+            return;
+        }
+    
+        const startDateTime = new Date(`${pickUpDate} ${pickUpTime}`);
+        const endDateTime = new Date(`${dropOffDate} ${dropOffTime}`);
+    
+        // Calcular la diferencia en milisegundos y convertir a días
+        const diffMs = endDateTime - startDateTime;
+        if (diffMs <= 0) {
+            alert("La fecha de entrega debe ser después de la de recogida.");
+            return;
+        }
+    
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));  // Redondear hacia arriba
+    
+        // Enviar al backend
+        const response = await fetch('/api/create-checkout-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'selected-car': selectedCarName,
+                'rental-days': diffDays
+            })
+        });
+    
+        const session = await response.json();
+        if (session.url) {
+            window.location.href = session.url;
+        } else {
+            console.error(session.error);
+        }
+    });
+    </script>
+    
 
 
 

@@ -110,7 +110,9 @@ app.post('/api/send-email', async (req, res) => {
 
     // Correo en formato HTML
     const html = `
-        <h2>Formulario de Reserva</h2>
+        <h2>Datos de Reserva</h2>
+        <p>Hola ${form['first-name']},</p>
+        <p>Hemos recibido tu solicitud de renta con los siguientes datos:</p>
         <p><strong>Nombre:</strong> ${form['first-name']} ${form['last-name']}</p>
         <p><strong>Teléfono:</strong> ${form['phone-number']}</p>
         <p><strong>Edad:</strong> ${form.age}</p>
@@ -119,7 +121,9 @@ app.post('/api/send-email', async (req, res) => {
         <p><strong>Carro Seleccionado:</strong> ${form['selected-car']}</p>
         <p><strong>Recogida:</strong> ${form['pick-up']}</p>
         <p><strong>Entrega:</strong> ${form['drop-off']}</p>
+        <p>¡Gracias por confiar en nosotros!</p>
     `;
+   
 
     try {
         const transporter = nodemailer.createTransport({
@@ -132,20 +136,12 @@ app.post('/api/send-email', async (req, res) => {
 
         await transporter.sendMail({
             from: 'Reservas <alivalrentacar@gmail.com>',
-            to: 'alivalrentacar@gmail.com',
-            cc:'romerorh46@gmail.com',
-            subject: 'Nueva Solicitud de Reserva',
+            to: 'alivalrentacar@gmail.com, romerorh46@gmail.com',
+            cc:form['email-address'],
+            subject: 'Confirmación de Solicitud de Reserva',
             html: html,
         });
 
-        const clientHtml = `
-        <h2>Gracias por tu reserva en Alival Renta Car</h2>
-        <p>Hola ${form['first-name']},</p>
-        <p>Hemos recibido tu solicitud de renta con los siguientes datos:</p>
-        ${html}
-        <p>Nos pondremos en contacto contigo pronto para confirmar los detalles.</p>
-        <p>¡Gracias por confiar en nosotros!</p>
-    `;
          // Correo para el cliente
          await transporter.sendMail({
           from: 'Alival Renta Car <alivalrentacar@gmail.com>',

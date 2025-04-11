@@ -20,5 +20,29 @@
     <h1>¡Gracias por tu pago!</h1>
     <p>Tu reserva ha sido completada correctamente.</p>
     <a href="index.html">Volver a la página principal</a>
+
+    <script>
+        // Recupera los datos guardados antes del pago
+        const formData = JSON.parse(localStorage.getItem('checkoutFormData'));
+      
+        if (formData) {
+          fetch('https://alival-backend.onrender.com/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+          })
+          .then(res => res.json())
+          .then(data => {
+            console.log('Correo enviado:', data);
+            localStorage.removeItem('checkoutFormData'); // Limpia después del envío
+          })
+          .catch(err => {
+            console.error('Error al enviar correo:', err);
+          });
+        }
+      </script>
+      
+
+ 
 </body>
 </html>

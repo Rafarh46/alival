@@ -48,7 +48,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         },
         quantity: 1,
       }],
-      success_url: `${FRONTEND_URL}/success.html`,
+      success_url: `${FRONTEND_URL}/succes.html`,
       cancel_url: `${FRONTEND_URL}/cancel.html`,
     });
 

@@ -70,7 +70,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
 // Conectar a MongoDB Atlas
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://federixrodrig:NV4WEBsel3rvrmc4@carros.fdhkhhq.mongodb.net/?retryWrites=true&w=majority&appName=carros', {
+mongoose.connect('mongodb+srv://federixrodrig:NV4WEBsel3rvrmc4@carros.fdhkhhq.mongodb.net/car_rental?retryWrites=true&w=majority&appName=carros', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })

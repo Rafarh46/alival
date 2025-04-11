@@ -7,7 +7,6 @@ const stripe = require('stripe')('sk_test_51RBU161IXopeWyL3LSV53FQOqkPiGLGKq9MWc
 const fs = require('fs');
 const Reservation = require('./reservations');
 
-
 // Cargar autos desde JSON
 const cars = JSON.parse(fs.readFileSync('./data/cars.json'));
 
@@ -15,7 +14,6 @@ const cars = JSON.parse(fs.readFileSync('./data/cars.json'));
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-
 
 // Archivos estáticos (frontend)
 app.use(express.static(path.join(__dirname, '../website')));
@@ -26,17 +24,13 @@ const FRONTEND_URL = 'https://alival-backend.onrender.com';
 // Endpoint de Stripe Checkout
 app.post('/api/create-checkout-session', async (req, res) => {
   const selectedCarName = req.body['selected-car'];  // Nombre del auto seleccionado desde el frontend
+  const rentalDays = req.body['rental-days'];
 
   // Buscar el auto en el JSON cargado
   const car = cars.find(c => c.name === selectedCarName);
-  const rentalDays = req.body['rental-days'];
   const totalPrice = car.price * rentalDays;
 
-
   console.log('Auto seleccionado desde frontend:', selectedCarName, rentalDays);  // Log para verificar lo que llega al servidor
-
-  
-
 
   if (!car) {
     console.error('Auto no encontrado');
@@ -73,8 +67,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
-
-
+// Conectar a MongoDB Atlas
 const mongoose = require('mongoose');
 
 mongoose.connect('mongodb+srv://federixrodrig:NV4WEBse13rvrmc4@carros.fdhkhhq.mongodb.net/?retryWrites=true&w=majority&appName=carros', {
@@ -84,12 +77,9 @@ mongoose.connect('mongodb+srv://federixrodrig:NV4WEBse13rvrmc4@carros.fdhkhhq.mo
 .then(() => console.log('✅ Conectado a MongoDB Atlas'))
 .catch((err) => console.error('❌ Error al conectar:', err));
 
-
-
-
+// Configurar Nodemailer para enviar el formulario
 const nodemailer = require('nodemailer');
 
-// Endpoint para enviar el formulario por correo
 app.post('/api/send-email', async (req, res) => {
     const form = req.body;
 
@@ -109,10 +99,10 @@ app.post('/api/send-email', async (req, res) => {
 
     try {
         const transporter = nodemailer.createTransport({
-            service: 'gmail', // o tu proveedor
+            service: 'gmail',
             auth: {
                 user: 'romerorh46@gmail.com',
-                pass: 'egod oiyr atxz vlju', // Cambia por tu contraseña real
+                pass: 'tu_contraseña_real', // Cambia por tu contraseña real
             },
         });
 
@@ -139,6 +129,7 @@ app.post('/api/reservations', async (req, res) => {
     const newDropOff = new Date(data['drop-off']);
     const carName = data['selected-car'];
 
+    // Verificar si hay una reserva que se solape
     const overlappingReservation = await Reservation.findOne({
       carName: carName,
       $or: [
@@ -153,6 +144,7 @@ app.post('/api/reservations', async (req, res) => {
       return res.status(409).json({ error: 'Este auto ya está reservado en ese rango de fechas' });
     }
 
+    // Guardar la nueva reserva
     const reservation = new Reservation({
       carName: carName,
       pickUpDate: newPickUp,
@@ -178,16 +170,8 @@ app.post('/api/reservations', async (req, res) => {
   }
 });
 
-
-
-
 // Iniciar servidor
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
-
-
-
-
 });
-

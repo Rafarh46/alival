@@ -71,6 +71,35 @@ app.post('/api/create-checkout-session', async (req, res) => {
 });
 
 
+// Guardar las reservas en JSON
+const saveReservations = (reservation) => {
+  const reservations = JSON.parse(fs.readFileSync(reservationsFile));
+  reservations.push(reservation);
+  fs.writeFileSync(reservationsFile, JSON.stringify(reservations, null, 2));
+};
+
+// Endpoint para registrar una nueva reserva
+app.post('/api/reservations', async (req, res) => {
+  const { carName, rentalDays, renter } = req.body;
+  const car = cars.find(c => c.name === carName);
+
+  if (!car) {
+    return res.status(404).json({ error: 'Auto no encontrado' });
+  }
+
+  const totalPrice = car.price * rentalDays;
+  const reservation = {
+    car,
+    rentalDays,
+    totalPrice,
+    renter,
+    createdAt: new Date()
+  };
+
+  // Guardar la reserva
+  saveReservations(reservation);
+
+
 // Configurar Nodemailer para enviar el formulario
 const nodemailer = require('nodemailer');
 

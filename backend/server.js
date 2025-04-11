@@ -119,7 +119,6 @@ app.post('/api/send-email', async (req, res) => {
         <p><strong>Carro Seleccionado:</strong> ${form['selected-car']}</p>
         <p><strong>Recogida:</strong> ${form['pick-up']}</p>
         <p><strong>Entrega:</strong> ${form['drop-off']}</p>
-        <p><strong>Ubicación de Recogida:</strong> ${form['pickup-location']}</p>
     `;
 
     try {

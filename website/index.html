@@ -1165,16 +1165,21 @@
         const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));  // Redondear hacia arriba
     
         // Enviar al backend
+        const dataToSend = {
+    'selected-car': selectedCarName,
+    'rental-days': diffDays
+        };
+
+        console.log("Datos que se enviarán al backend:", dataToSend);
+
         const response = await fetch('/api/create-checkout-session', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                'selected-car': selectedCarName,
-                'rental-days': diffDays
-            })
+            body: JSON.stringify(dataToSend)
         });
+
     
         const session = await response.json();
         if (session.url) {

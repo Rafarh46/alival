@@ -24,12 +24,16 @@ const FRONTEND_URL = 'https://alival-backend.onrender.com';
 // Endpoint de Stripe Checkout
 app.post('/api/create-checkout-session', async (req, res) => {
   const selectedCarName = req.body['selected-car'];  // Nombre del auto seleccionado desde el frontend
-  console.log('Auto seleccionado desde frontend:', selectedCarName);  // Log para verificar lo que llega al servidor
 
   // Buscar el auto en el JSON cargado
   const car = cars.find(c => c.name === selectedCarName);
   const rentalDays = req.body['rental-days'];
   const totalPrice = car.price * rentalDays;
+
+
+  console.log('Auto seleccionado desde frontend:', selectedCarName, rentalDays);  // Log para verificar lo que llega al servidor
+
+  
 
 
   if (!car) {
@@ -50,7 +54,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
           product_data: {
             name: car.name,
           },
-          unit_amount: car.totalPrice * 100, // Convertir a centavos
+          unit_amount: car.price * 100, // Convertir a centavos
         },
         quantity: 1,
       }],

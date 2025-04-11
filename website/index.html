@@ -1039,6 +1039,27 @@
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
+      const checkoutFormData = {
+        'first-name': document.getElementById('first-name').value,
+        'last-name': document.getElementById('last-name').value,
+        'phone-number': document.getElementById('phone-number').value,
+        'age': document.getElementById('age').value,
+        'email-address': document.getElementById('email-address').value,
+        'address': document.getElementById('address').value,
+        'city': document.getElementById('city').value,
+        'zip-code': document.getElementById('zip-code').value,
+        'selected-car': document.getElementById('selected-car').value,
+        
+        // Recoger la fecha y la hora de recogida y entrega
+        'pick-up': document.getElementById('pick-up-date-ph').innerText + ' a las ' + document.getElementById('pick-up-time-ph').innerText,
+        'drop-off': document.getElementById('drop-off-date-ph').innerText + ' a las ' + document.getElementById('drop-off-time-ph').innerText,
+
+        // También las ubicaciones
+        'pickup-location': document.getElementById('pickup-location-ph').innerText,
+        'dropoff-location': document.getElementById('dropoff-location-ph').innerText
+    };
+
+
       localStorage.setItem('checkoutFormData', JSON.stringify(data));
   
       console.log('Auto seleccionado:', data['selected-car']); // ✅ Verifica que tenga valor

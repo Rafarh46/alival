@@ -60,46 +60,49 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.status(500).json({ error: 'Error al procesar el pago' });
   }
 });
-
 const nodemailer = require('nodemailer');
 
 // Endpoint para enviar el formulario por correo
 app.post('/api/send-email', async (req, res) => {
-  const form = req.body;
-  const html = `
-    <h2>Formulario de Reserva</h2>
-    <p><strong>Nombre:</strong> ${form['first-name']} ${form['last-name']}</p>
-    <p><strong>Teléfono:</strong> ${form['phone-number']}</p>
-    <p><strong>Edad:</strong> ${form.age}</p>
-    <p><strong>Email:</strong> ${form['email-address']}</p>
-    <p><strong>Dirección:</strong> ${form.address}, ${form.city}, ${form['zip-code']}</p>
-    <p><strong>Carro Seleccionado:</strong> ${form['selected-car']}</p>
-    <p><strong>Recogida:</strong> ${form['pick-up']}</p>
-    <p><strong>Entrega:</strong> ${form['drop-off']}</p>
-  `;
+    const form = req.body;
 
-  try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail', // o tu proveedor
-      auth: {
-        user: 'romerorh46@gmail.com',
-        pass: 'egod oiyr atxz vlju',
-      },
-    });
+    // Correo en formato HTML
+    const html = `
+        <h2>Formulario de Reserva</h2>
+        <p><strong>Nombre:</strong> ${form['first-name']} ${form['last-name']}</p>
+        <p><strong>Teléfono:</strong> ${form['phone-number']}</p>
+        <p><strong>Edad:</strong> ${form.age}</p>
+        <p><strong>Email:</strong> ${form['email-address']}</p>
+        <p><strong>Dirección:</strong> ${form.address}, ${form.city}, ${form['zip-code']}</p>
+        <p><strong>Carro Seleccionado:</strong> ${form['selected-car']}</p>
+        <p><strong>Recogida:</strong> ${form['pick-up']}</p>
+        <p><strong>Entrega:</strong> ${form['drop-off']}</p>
+        <p><strong>Ubicación de Recogida:</strong> ${form['pickup-location']}</p>
+    `;
 
-    await transporter.sendMail({
-      from: 'Reservas <romerorh46@gmail.com>',
-      to: 'romerorh46@gmail.com',
-      subject: 'Nueva Solicitud de Reserva',
-      html: html,
-    });
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail', // o tu proveedor
+            auth: {
+                user: 'romerorh46@gmail.com',
+                pass: 'egod oiyr atxz vlju', // Cambia por tu contraseña real
+            },
+        });
 
-    res.status(200).send({ message: 'Correo enviado correctamente' });
-  } catch (err) {
-    console.error('Error enviando correo:', err.message);
-    res.status(500).send({ error: 'Error al enviar el correo' });
-  }
+        await transporter.sendMail({
+            from: 'Reservas <romerorh46@gmail.com>',
+            to: 'romerorh46@gmail.com',
+            subject: 'Nueva Solicitud de Reserva',
+            html: html,
+        });
+
+        res.status(200).send({ message: 'Correo enviado correctamente' });
+    } catch (err) {
+        console.error('Error enviando correo:', err.message);
+        res.status(500).send({ error: 'Error al enviar el correo' });
+    }
 });
+
 
 
 // Iniciar servidor

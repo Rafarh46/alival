@@ -1,15 +1,17 @@
+
 const stripe = require('stripe')('sk_test_51RBU161IXopeWyL3LSV53FQOqkPiGLGKq9MWcDzs8P2BLTyjHz2phE3qvxdes2mMn0fZZmSn0xQRp7IBEIVhzw8g002mk3KhUV');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
-const nodemailer = require('nodemailer');
+const Reservation = require('./reservations');
 const app = express();
 
 // Cargar autos desde JSON
 const cars = JSON.parse(fs.readFileSync('./data/cars.json'));
 const reservationsFile = path.join(__dirname, '../data/reservations.json');
+
 
 // Middlewares
 app.use(cors());
@@ -55,7 +57,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         },
         quantity: 1,
       }],
-      success_url: `${FRONTEND_URL}/succes.html?customer-name=${encodeURIComponent(firstName + ' ' + lastName)}&selected-car=${encodeURIComponent(car.name)}&pickup-date=${encodeURIComponent(pickupDate)}&dropoff-date=${encodeURIComponent(dropoffDate)}&total-price=${encodeURIComponent(totalPrice)}`,
+      success_url: `${FRONTEND_URL}/succes.html`,
       cancel_url: `${FRONTEND_URL}/cancel.html`,
     });
 
@@ -68,70 +70,50 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
-// Guardar las reservas en JSON
-const saveReservations = (reservation) => {
-  const reservations = JSON.parse(fs.readFileSync(reservationsFile));
-  reservations.push(reservation);
-  fs.writeFileSync(reservationsFile, JSON.stringify(reservations, null, 2));
-};
 
-// Endpoint para registrar una nueva reserva
-app.post('/api/reservations', async (req, res) => {
-  const { carName, rentalDays, renter } = req.body;
-  const car = cars.find(c => c.name === carName);
+// Configurar Nodemailer para enviar el formulario
+const nodemailer = require('nodemailer');
 
-  if (!car) {
-    return res.status(404).json({ error: 'Auto no encontrado' });
-  }
+app.post('/api/send-email', async (req, res) => {
+    const form = req.body;
 
-  const totalPrice = car.price * rentalDays;
-  const reservation = {
-    car,
-    rentalDays,
-    totalPrice,
-    renter,
-    createdAt: new Date()
-  };
-
-  // Guardar la reserva
-  saveReservations(reservation);
-
-  // Enviar correo electrónico
-  try {
+    // Correo en formato HTML
     const html = `
-      <h2>Formulario de Reserva</h2>
-      <p><strong>Nombre:</strong> ${renter.firstName} ${renter.lastName}</p>
-      <p><strong>Teléfono:</strong> ${renter.phone}</p>
-      <p><strong>Edad:</strong> ${renter.age}</p>
-      <p><strong>Email:</strong> ${renter.email}</p>
-      <p><strong>Dirección:</strong> ${renter.address}, ${renter.city}, ${renter.zipCode}</p>
-      <p><strong>Carro Seleccionado:</strong> ${car.name}</p>
-      <p><strong>Recogida:</strong> ${renter.pickupDate}</p>
-      <p><strong>Entrega:</strong> ${renter.dropoffDate}</p>
-      <p><strong>Ubicación de Recogida:</strong> ${renter.pickupLocation}</p>
+        <h2>Formulario de Reserva</h2>
+        <p><strong>Nombre:</strong> ${form['first-name']} ${form['last-name']}</p>
+        <p><strong>Teléfono:</strong> ${form['phone-number']}</p>
+        <p><strong>Edad:</strong> ${form.age}</p>
+        <p><strong>Email:</strong> ${form['email-address']}</p>
+        <p><strong>Dirección:</strong> ${form.address}, ${form.city}, ${form['zip-code']}</p>
+        <p><strong>Carro Seleccionado:</strong> ${form['selected-car']}</p>
+        <p><strong>Recogida:</strong> ${form['pick-up']}</p>
+        <p><strong>Entrega:</strong> ${form['drop-off']}</p>
+        <p><strong>Ubicación de Recogida:</strong> ${form['pickup-location']}</p>
     `;
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'romerorh46@gmail.com',
-        pass: 'dczx ryql ufof kqnr', // Cambia por tu contraseña real
-      },
-    });
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'romerorh46@gmail.com',
+                pass: 'dczx ryql ufof kqnr', // Cambia por tu contraseña real
+            },
+        });
 
-    await transporter.sendMail({
-      from: 'Reservas <romerorh46@gmail.com>',
-      to: 'romerorh46@gmail.com',
-      subject: 'Nueva Solicitud de Reserva',
-      html: html,
-    });
+        await transporter.sendMail({
+            from: 'Reservas <romerorh46@gmail.com>',
+            to: 'romerorh46@gmail.com',
+            subject: 'Nueva Solicitud de Reserva',
+            html: html,
+        });
 
-    res.status(200).json({ message: 'Reserva registrada y correo enviado' });
-  } catch (err) {
-    console.error('Error al enviar correo:', err.message);
-    res.status(500).json({ error: 'Error al enviar el correo' });
-  }
+        res.status(200).send({ message: 'Correo enviado correctamente' });
+    } catch (err) {
+        console.error('Error enviando correo:', err.message);
+        res.status(500).send({ error: 'Error al enviar el correo' });
+    }
 });
+
 
 // Iniciar servidor
 const PORT = process.env.PORT || 10000;

@@ -29,7 +29,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   // Buscar el auto en el JSON cargado
   const car = cars.find(c => c.name === selectedCarName);
   const rentalDays = req.body['rental-days'];
-  const totalPrice = car.pricePerDay * rentalDays;
+  const totalPrice = car.price * rentalDays;
 
 
   if (!car) {
@@ -50,7 +50,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
           product_data: {
             name: car.name,
           },
-          unit_amount: 1000 * 100, // Convertir a centavos
+          unit_amount: car.totalPrice * 100, // Convertir a centavos
         },
         quantity: 1,
       }],

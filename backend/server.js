@@ -32,6 +32,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   // Buscar el auto en el JSON cargado
   const car = cars.find(c => c.name === selectedCarName);
   const totalPrice = car.price * rentalDays;
+  
 
   console.log('Auto seleccionado desde frontend:', selectedCarName, rentalDays);  // Log para verificar lo que llega al servidor
 
@@ -98,6 +99,7 @@ app.post('/api/reservations', async (req, res) => {
 
   // Guardar la reserva
   saveReservations(reservation);
+});
 
 
 // Configurar Nodemailer para enviar el formulario
